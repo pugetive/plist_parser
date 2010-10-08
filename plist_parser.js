@@ -44,7 +44,9 @@ PlistParser._xml_to_json = function(xml_node) {
     case 'plist':
       if (child_nodes.length > 1){
         // I'm not actually sure if it is legal to have multiple
-        // top-level nodes just below <plist>.
+        // top-level nodes just below <plist>. But I originally 
+        // wrote it to handle an array of nodes at that level,
+        // so I'm leaving this handling in for now.
         var plist_array = [];
         for(var i = 0; i < child_nodes.length; ++i){
            plist_array.push(parser._xml_to_json(child_nodes[i]));
@@ -54,6 +56,8 @@ PlistParser._xml_to_json = function(xml_node) {
         // return plist_hash;
         return plist_array;
       } else {
+        // THIS is the standard case. The top-most node under
+        // <plist> is either a <dict> or an <array>.
         return parser._xml_to_json(child_nodes[0]);
       }
       break;
@@ -163,8 +167,8 @@ PlistParser.serialize = function(_obj) {
           // "The body of a for in should be wrapped in an if statement to filter unwanted properties from the prototype."
           if (_obj.hasOwnProperty(key)) {
             str += key + ':' + PlistParser.serialize(_obj[key]) + ','; 
-          }
-        }
+          };
+        };
         str = str.replace(/\,$/, '') + '}';
       }
       return str;
