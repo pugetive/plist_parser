@@ -169,13 +169,16 @@ PlistParser._parseDate = function(date_string){
 };
 
 
-// Lifted (slightly modified) from: 
+// Lifted (then modified) from: 
 // http://blog.stchur.com/2007/04/06/serializing-objects-in-javascript/
 PlistParser.serialize = function(_obj) {
   // Let Gecko browsers do this the easy way
-  if (typeof _obj.toSource !== 'undefined' && typeof _obj.callee === 'undefined')
-  {
-    return _obj.toSource();
+  try{
+    if (typeof _obj.toSource !== 'undefined' && typeof _obj.callee === 'undefined') {
+      return _obj.toSource();
+    }
+  } catch(e) {
+    // Keep on truckin'.
   }
 
   // Other browsers must do it the hard way
@@ -220,4 +223,3 @@ PlistParser.serialize = function(_obj) {
       return 'UNKNOWN';
   };
 };
-
