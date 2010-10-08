@@ -96,6 +96,7 @@ PlistParser._xml_to_json = function(xml_node) {
 
     case 'integer':
     
+      // Second argument (radix parenter) forces string to be interpreted in base 10.
       return parseInt(PlistParser._textValue(parent_node), 10);
 
     case 'real':
@@ -161,8 +162,9 @@ PlistParser.serialize = function(_obj) {
         for (key in _obj) { 
           // "The body of a for in should be wrapped in an if statement to filter unwanted properties from the prototype."
           if (_obj.hasOwnProperty(key)) {
-            str += key + ':' + PlistParser.serialize(_obj[key]) + ','; }
+            str += key + ':' + PlistParser.serialize(_obj[key]) + ','; 
           }
+        }
         str = str.replace(/\,$/, '') + '}';
       }
       return str;
