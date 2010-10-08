@@ -83,6 +83,7 @@ PlistParser._xml_to_json = function(xml_node) {
         return parser._xml_to_json(child_nodes[0]);
       }
       break;
+
     case 'dict':
 
       var dictionary = {};
@@ -122,7 +123,7 @@ PlistParser._xml_to_json = function(xml_node) {
 
     case 'integer':
     
-      // Second argument (radix parenter) forces string to be interpreted in base 10.
+      // Second argument (radix parameter) forces string to be interpreted in base 10.
       return parseInt(PlistParser._textValue(parent_node), 10);
 
     case 'real':
@@ -147,6 +148,26 @@ PlistParser._xml_to_json = function(xml_node) {
       break;
   };
 };
+
+
+PlistParser._textValue = function(node) {
+  if (node.text){
+    return node.text;
+  } else {
+    return node.textContent;
+  };
+};
+
+// Handle date parsing in non-FF browsers
+// Thanks to http://www.west-wind.com/weblog/posts/729630.aspx
+PlistParser._parseDate = function(date_string){
+  var reISO = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
+  var matched_date = reISO.exec(date_string);
+  if (matched_date){ 
+    return new Date(Date.UTC(+matched_date[1], +matched_date[2] - 1, +matched_date[3], +matched_date[4], +matched_date[5], +matched_date[6]));
+  };
+};
+
 
 // Lifted (slightly modified) from: 
 // http://blog.stchur.com/2007/04/06/serializing-objects-in-javascript/
@@ -197,24 +218,6 @@ PlistParser.serialize = function(_obj) {
 
     default:
       return 'UNKNOWN';
-  };
-};
-
-PlistParser._textValue = function(node) {
-  if (node.text){
-    return node.text;
-  } else {
-    return node.textContent;
-  };
-};
-
-// Handle date parsing in non-FF browsers
-// Thanks to http://www.west-wind.com/weblog/posts/729630.aspx
-PlistParser._parseDate = function(date_string){
-  var reISO = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
-  var matched_date = reISO.exec(date_string);
-  if (matched_date){ 
-    return new Date(Date.UTC(+matched_date[1], +matched_date[2] - 1, +matched_date[3], +matched_date[4], +matched_date[5], +matched_date[6]));
   };
 };
 
