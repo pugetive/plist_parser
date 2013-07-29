@@ -223,3 +223,41 @@ PlistParser.serialize = function(_obj) {
       return 'UNKNOWN';
   };
 };
+
+
+PlistParser.toPlist = function(obj){
+  var xml = '<?xml version="1.0" encoding="UTF-8"?>';
+  xml += '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">';
+
+  var container = document.createElement('xml');
+  var plist = document.createElement('plist');
+  plist.setAttribute('version','1.0');
+  container.appendChild(plist);
+  
+  var root = document.createElement('dict');
+  plist.appendChild(root);
+
+  var walkObj = function(target, obj, callback){
+    for(var i in obj){
+      callback(target, i, obj[i]);
+    }
+  }
+
+  var processObject = function(target, name, value){
+    var key = document.createElement('key');
+    key.innerHTML = name;
+    target.appendChild(key);
+    if(typeof value == 'object'){
+      var dict = document.createElement('dict');
+      walkObj(dict, value, processObject)
+      target.appendChild(dict);
+    }else{
+      var string = document.createElement('string');
+      string.innerHTML = value;
+      target.appendChild(string);
+    }
+  };
+  walkObj(root, obj, processObject);
+
+  return xml+container.innerHTML;
+};
