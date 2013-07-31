@@ -223,3 +223,59 @@ PlistParser.serialize = function(_obj) {
       return 'UNKNOWN';
   };
 };
+
+PlistParser.toPlist = function(obj){
+  var xml = '<?xml version="1.0" encoding="UTF-8"?>';
+  xml += '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">';
+
+  var container = document.createElement('xml');
+  var plist = document.createElement('plist');
+  plist.setAttribute('version','1.0');
+  container.appendChild(plist);
+  
+  var root = document.createElement('dict');
+  plist.appendChild(root);
+
+  var getISOString = function(date){
+    function pad(n) { return n < 10 ? '0' + n : n }
+    return date.getUTCFullYear() + '-'
+      + pad(date.getUTCMonth() + 1) + '-'
+      + pad(date.getUTCDate()) + 'T'
+      + pad(date.getUTCHours()) + ':'
+      + pad(date.getUTCMinutes()) + ':'
+      + pad(date.getUTCSeconds()) + 'Z';
+  }
+
+  var walkObj = function(target, obj, callback){
+    for(var i in obj){
+      callback(target, i, obj[i]);
+    }
+  }
+
+  var processObject = function(target, name, value){
+    var key = document.createElement('key');
+    key.innerHTML = name;
+    target.appendChild(key);
+    if(typeof value == 'object'){
+      if(value instanceof Date){
+        var date = document.createElement('date');
+        date.innerHTML = getISOString(value);
+        target.appendChild(date);
+      }else{
+        var dict = document.createElement('dict');
+        walkObj(dict, value, processObject)
+        target.appendChild(dict);
+      }
+    }else if(typeof value == 'boolean'){
+      var bool = document.createElement(value.toString());
+      target.appendChild(bool);
+    }else{
+      var string = document.createElement('string');
+      string.innerHTML = value;
+      target.appendChild(string);
+    }
+  };
+  walkObj(root, obj, processObject);
+
+  return xml+container.innerHTML;
+};
