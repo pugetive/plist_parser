@@ -38,7 +38,8 @@ PlistParser.parse = function(plist_xml){
       plist_xml = Titanium.XML.parseString(plist_xml);
     }
   } catch(e){
-    // Okay if Titanium classes don't exist, then we're in a browser.
+    var parser = new DOMParser();
+		  plist_xml = parser.parseFromString(plist_xml, 'text/xml');
   }
     
   var result = this._xml_to_json(plist_xml.getElementsByTagName('plist').item(0));
